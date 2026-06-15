@@ -1,5 +1,5 @@
 import pandas as pd
-from dash import Dash, html, dcc
+from dash import Dash, html, dcc, Input, Output
 import plotly.express as px
 
 # Load data
@@ -45,13 +45,87 @@ fig.update_xaxes(
 # Create Dash app
 app = Dash(__name__)
 
-app.layout = html.Div([
-    html.H1("Pink Morsel Sales Analysis"),
+app.layout = html.Div(
 
-    dcc.Graph(
-        figure=fig
+    style={
+        "backgroundColor": "#f4f6f9",
+        "padding": "20px",
+        "fontFamily": "Arial"
+    },
+
+    children=[
+
+        html.H1(
+            "Pink Morsel Sales Analysis",
+            style={
+                "textAlign": "center",
+                "color": "#2c3e50"
+            }
+        ),
+
+        html.Hr(),
+
+        html.Label(
+            "Select Region",
+            style={
+                "fontSize": "20px",
+                "fontWeight": "bold"
+            }
+        ),
+
+        dcc.RadioItems(
+            id="region-filter",
+            options=[
+                {"label": "All", "value": "all"},
+                {"label": "North", "value": "north"},
+                {"label": "South", "value": "south"},
+                {"label": "East", "value": "east"},
+                {"label": "West", "value": "west"},
+            ],
+            value="all",
+            inline=True,
+            style={"marginBottom": "20px"}
+        ),
+
+        dcc.Graph(id="sales-chart")
+    ]
+)
+
+@app.callback(
+    Output("sales-chart", "figure"),
+    Input("region-filter", "value")
+)
+def update_graph(selected_region):
+
+    if selected_region == "all":
+        filtered_df = df
+    else:
+        filtered_df = df[df["Region"] == selected_region]
+
+    daily_sales = (
+        filtered_df.groupby("Date")["Sales"]
+        .sum()
+        .reset_index()
     )
-])
+
+    fig = px.line(
+        daily_sales,
+        x="Date",
+        y="Sales",
+        title="Pink Morsel Sales Over Time",
+        labels={
+            "Date": "Date",
+            "Sales": "Total Sales ($)"
+        }
+    )
+
+    fig.add_vline(
+        x="2021-01-15",
+        line_dash="dash",
+        annotation_text="Price Increase"
+    )
+
+    return fig
 
 if __name__ == "__main__":
     app.run(debug=True)
