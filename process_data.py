@@ -20,7 +20,14 @@ df["sales"] = df["quantity"] * df["price"]
 # Keep only required columns
 output = df[["sales", "date", "region"]]
 
-# Save output
+output = output.rename(
+    columns=
+    {
+        "sales": "Sales",
+        "date": "Date",
+        "region": "Region"
+    }
+)
 output.to_csv("formatted_sales.csv", index=False)
 
 print("File created successfully!")
