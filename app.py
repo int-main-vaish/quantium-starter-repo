@@ -57,6 +57,7 @@ app.layout = html.Div(
 
         html.H1(
             "Pink Morsel Sales Analysis",
+            id="header",
             style={
                 "textAlign": "center",
                 "color": "#2c3e50"
